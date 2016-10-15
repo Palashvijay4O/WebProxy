@@ -189,6 +189,8 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	line;
 
 	close(reqsock);
+
+	pthread_exit(&ret);
 }
 
 
