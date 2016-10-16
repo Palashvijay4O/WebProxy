@@ -156,32 +156,6 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 
 	//respondBackToClient(sockfd, serverResponse);
-	
-	/*string webPageKaKachra;
-	FILE* fp;
-	fp = fopen("temp2.txt", "w");
-	if(fp == NULL) {
-		cout << "Error opening file" << endl;
-	}
-	//fprintf(fp, "hiiii\n");
-	while((n = read(reqsock, responseFromProxy, 1330)) > 0) {
-		//webPageKaKachra.append(responseFromProxy);
-		trace1(n);
-		fprintf(fp,"%s\n", responseFromProxy);
-		//printf("%s\n", responseFromProxy);
-		//string str(responseFromProxy);
-		//fp << responseFromProxy;
-		//fflush(fp);
-		//cout << webPageKaKachra << endl;
-		
-		if(n < 0) {
-			cout << "Ooops... Error reading the Webpage.. Try again.." << endl;
-			pthread_exit(&ret);
-			break;
-		}
-
-		memset(responseFromProxy, 0, 1330);
-	}*/
 
 	// fflush(NULL);
 	cout << "I am out now...." << endl;
