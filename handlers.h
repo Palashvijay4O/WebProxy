@@ -85,7 +85,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	if(!fp) {
 		cout << "lag gayi" << endl;
 	}
-	
+
 	printf("Hostname : %s\n", hostname);
 	char* tokens = strtok(hostname, "/");
 
@@ -150,7 +150,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	//serverResponse[500000] = '\0';
 	while(1) {
 		n = recv(reqsock, responseFromProxy, 10000, 0);
-		//cout << n << endl;
+		
 		trace1(n);
 		if(n < 0) {
 			cout << "Not able to fetch from host.. quiting" << endl;
@@ -166,26 +166,21 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 			//strcat(serverResponse, responseFromProxy);
 			respondBackToClient(sockfd, responseFromProxy);
 			fprintf(fp,"%s\n",responseFromProxy);
-			//fflush(stdout);
+			fflush(fp);
 			//trace1(n);
 			total_size += n;
 		}
 		memset(responseFromProxy, 0, 10000);
 	}
-	//fflush(NULL);
+	fflush(fp);
 	fclose(fp);
-	//free(responseFromProxy);
+	
 
-
-	//respondBackToClient(sockfd, serverResponse);
-
-	// fflush(NULL);
 	cout << "I am out now...." << endl;
-	//cout << webPageKaKachra << endl;
+	
 	line;
 
 	close(reqsock);
-
 	pthread_exit(&ret);
 }
 

@@ -106,7 +106,7 @@ class Proxy {
 
 			// int and long on different platforms.
 			pthread_t thread;
-
+			int ret = 1;
 			//pthread_mutex_init(&lock, NULL);
 			//pthread_mutex_lock(&lock);
 			if(pthread_create(&thread, NULL, &Proxy::beginExecution, (void*)(intptr_t)newsockfd) < 0) {
@@ -114,9 +114,12 @@ class Proxy {
 				DIE
 			}
 			count++;
-			cout << count << endl;
+			
+			//pthread_join(thread, NULL);
+			//cout << count << endl;
 			pthread_detach(thread);
 			thread = NULL;
+			//pthread_exit(&ret);
 			//Proxy::beginExecution((void*)(intptr_t)newsockfd);
 			//pthread_mutex_unlock(&lock);
 		}
