@@ -14,6 +14,19 @@ int respondBackToClient(int sockfd, char* response) {
 	return 0;
 }
 
+char* removeSlashes(char* hostname) {
+
+	int len = strlen(hostname);
+	char* temp = (char*)malloc(strlen(hostname)+1);
+	for(int i = 0; i < len; i++) {
+		if(hostname[i] != '/')
+			temp[i] = hostname[i];
+		else
+			temp[i] = '_';
+	}
+
+	return temp;
+}
 
 char* remove3WandHTTP(char* request) {
 	/*line;line;
@@ -57,16 +70,35 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	// trim off the leading http://. 
 	char* hostname = remove3WandHTTP(requestKiCopy);
 
+	FILE* fp;
 
+	// TODO hostname ko sahi karna hai.. problem with slashes
+	// will have to replace / with _
+	char *filename = (char *)malloc(strlen(hostname)+9);
+
+	printf("The hostname which i am getting is------------------------%s\n", hostname);
+	char* newhostname = (char*)malloc(strlen(hostname)+1);
+	newhostname = removeSlashes(hostname);
+	sprintf(filename, "tmp/%s.txt", newhostname);
+	fp = fopen(filename, "w");
+
+	if(!fp) {
+		cout << "lag gayi" << endl;
+	}
+	
 	printf("Hostname : %s\n", hostname);
 	char* tokens = strtok(hostname, "/");
 
+
+	printf("Hostname after tokenization------------ : %s\n", hostname);
 	//string str(tokens);
 
 	cout << "Connecting to domain\n"; line;
-	printf("%s\n",tokens);
+	printf("Tokens----------------------------%s\n",tokens);
 	line;
 
+
+	// Unused
 	char* fullrequest = (char*)malloc(strlen(tokens)+23);
 	sprintf(fullrequest, "GET %s HTTP/1.1",tokens);
 
@@ -113,17 +145,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	int total_size = 0;
 	//ofstream fp;
 	//fp.open("courier.txt", ios::out);
-	FILE* fp;
 
-	// TODO hostname ko sahi karna hai.. problem with slashes
-	// will have to replace / with _
-	char *filename = (char *)malloc(strlen(hostname)+9);
-	sprintf(filename, "tmp/%s.txt", hostname);
-	fp = fopen(filename, "w");
-
-	if(!fp) {
-		cout << "lag gayi" << endl;
-	}
 	//char serverResponse[500001];
 	//serverResponse[500000] = '\0';
 	while(1) {
