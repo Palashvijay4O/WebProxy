@@ -13,6 +13,9 @@
 #include <pthread.h>
 #include <sys/stat.h>
 #include <fstream>
+#include <string>
+#include <set>
+#include <map>
 
 #define trace1(x)       cerr << #x << " : " << x << endl;
 #define trace2(x, y)    cerr << #x << " : " << x << " | " << #y << " : " << y << endl;
@@ -28,3 +31,4 @@
 
 #define line (cout << "------------------------------------------------" << endl)
 
+extern "C" std::map<std::string, std::string> cache_map;

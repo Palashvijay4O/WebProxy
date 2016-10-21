@@ -2,6 +2,7 @@
 
 using namespace std;
 
+std::map<std::string, std::string> cache_map;
 
 int respondBackToClient(int sockfd, char* response) {
 	if (write(sockfd, response, strlen(response)) < 0) {
@@ -49,7 +50,7 @@ char* remove3WandHTTP(char* request) {
 
 }
 
-void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
+void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 
 	printf("Message ye aaya hai client se -->\n %s\n", ClientSeAayaMsg);
 	bool browser = false;
@@ -67,8 +68,8 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	struct sockaddr_in req_adr;
 	memset((char*)& req_adr, 0, sizeof req_adr);
 
-	char* requestKiCopy = (char*)malloc(strlen(request) + 1);
-	strcpy(requestKiCopy, request);
+	char* requestKiCopy = (char*)malloc(strlen(requestUrl) + 1);
+	strcpy(requestKiCopy, requestUrl);
 
 
 	// trim off the leading http://. 
@@ -78,18 +79,17 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 	char *filename = (char *)malloc(strlen(hostname)+9);
 
-	//printf("The hostname which i am getting is------------------------%s\n", hostname);
+	printf("The hostname which i am getting is------------------------%s\n", hostname);
 	char* newhostname = (char*)malloc(strlen(hostname)+1);
 	newhostname = removeSlashes(hostname);
 	sprintf(filename, "tmp/%s.txt", newhostname);
+	printf("cache filed name---%s\n", filename);
 	fp = fopen(filename, "w");
 
 	if(!fp) {
 		cout << "lag gayi" << endl;
 	}
 
-
-	
 	//printf("Hostname : %s\n", hostname);
 	char* temphostname = (char*)malloc(strlen(hostname)+1);
 	strcpy(temphostname, hostname);
@@ -131,9 +131,9 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	}
 
 	
-	
+	printf("temphostname---------%s",temphostname);
 	char* fullrequest = (char*)malloc(strlen(temphostname)+30);
-	sprintf(fullrequest, "GET http://%s HTTP/1.1\r\n", temphostname);
+	sprintf(fullrequest, "GET http://%s\n HTTP/1.1", temphostname);
 
 
 	int writer;
@@ -188,7 +188,11 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	
 
 	//cout << "I am out now...." << endl;
-	
+	string key = hostname;
+	string value = filename;
+	cache_map[hostname] = filename;
+
+	cout << cache_map.size() << endl;
 	line;
 
 	close(reqsock);
@@ -198,6 +202,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 void parseRequest(int sockfd, char* message) {
 
+	//printf("Message -------- %s\n",message);
 	char* messagekicopy = (char*)malloc(strlen(message) + 1);
 	strcpy(messagekicopy, message);
 	char *tokens = strtok(message, " ");
@@ -210,14 +215,15 @@ void parseRequest(int sockfd, char* message) {
 	}
 	tokens = strtok(NULL, " ");
 
-	char* request = (char*)malloc(strlen(tokens)+1);
-	strcpy(request, tokens);
+	char* requestUrl = (char*)malloc(strlen(tokens)+1);
+	strcpy(requestUrl, tokens);
 	line;
 	cout << "Processing Request...Please wait..." << endl;
 	line;
-	printf("%s\n", request);
+	printf("%s\n", requestUrl);
 	line;
-	httpRequest(sockfd, request, messagekicopy);
+
+	httpRequest(sockfd, requestUrl, messagekicopy);
 
 	return;
 }
