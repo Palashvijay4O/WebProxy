@@ -30,29 +30,17 @@ char* removeSlashes(char* hostname) {
 }
 
 char* remove3WandHTTP(char* request) {
-	/*line;line;
-	printf("%s\n", request);
-	line;line;*/
 
-
-	/*int i = 0, count = 0;
-	while(request[i++] == 'w') {
-		count++;
-		if(count > 3) {
-			break;	
-		}
-	}*/
 	if(strstr(request, HTTP_BEGIN) != NULL)
 		return strstr(request, "http://") + 7;
 	else
 		return request;
-	//return request + count;
 
 }
 
 void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 
-	printf("Message ye aaya hai client se -->\n %s\n", ClientSeAayaMsg);
+	//printf("Message ye aaya hai client se -->\n %s\n", ClientSeAayaMsg);
 	bool browser = false;
 	if(strstr(ClientSeAayaMsg, "Host:") != NULL) {
 		browser = true;
@@ -72,7 +60,7 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	strcpy(requestKiCopy, requestUrl);
 
 
-	// trim off the leading http://. 
+	// trim off the leading http://
 	char* hostname = remove3WandHTTP(requestKiCopy);
 
 	FILE* fp;
@@ -131,7 +119,7 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	}
 
 	
-	printf("temphostname---------%s",temphostname);
+	//printf("temphostname---------%s\n",temphostname);
 	char* fullrequest = (char*)malloc(strlen(temphostname)+30);
 	sprintf(fullrequest, "GET http://%s\n HTTP/1.1", temphostname);
 
@@ -146,7 +134,6 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 		writer = write(reqsock, ClientSeAayaMsg, strlen(ClientSeAayaMsg));
 	}
 
-	trace1(writer);
 
 	char responseFromProxy[10001];
 	responseFromProxy[10000] = '\0';
@@ -157,11 +144,7 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	line;
 
 	int total_size = 0;
-	//ofstream fp;
-	//fp.open("courier.txt", ios::out);
-
-	//char serverResponse[500001];
-	//serverResponse[500000] = '\0';
+	
 	while(1) {
 		n = recv(reqsock, responseFromProxy, 10000, 0);
 
@@ -187,12 +170,13 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	fclose(fp);
 	
 
-	//cout << "I am out now...." << endl;
-	string key = hostname;
+	//cout << "I am done now...." << endl;
+	// SINGLE CLIENT CACHE SYSTEM
+	/*string key = hostname;
 	string value = filename;
 	cache_map[hostname] = filename;
 
-	cout << cache_map.size() << endl;
+	cout << cache_map.size() << endl;*/
 	line;
 
 	close(reqsock);
@@ -230,7 +214,7 @@ void parseRequest(int sockfd, char* message) {
 	// trim off the leading http://. 
 	char* hostname = remove3WandHTTP(requestKiCopy);
 
-	printf("hostname ----------------- %s\n", hostname);
+	//printf("hostname ----------------- %s\n", hostname);
 
 	if(returnFromCache(sockfd, requestUrl, messagekicopy) == 0)
 		httpRequest(sockfd, requestUrl, messagekicopy);
