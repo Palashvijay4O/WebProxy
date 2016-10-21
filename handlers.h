@@ -4,16 +4,6 @@ using namespace std;
 
 std::map<std::string, std::string> cache_map;
 
-int respondBackToClient(int sockfd, char* response) {
-	if (write(sockfd, response, strlen(response)) < 0) {
-		printf("%s\n",response);
-		fprintf(stderr, "ERROR writing to socket\n");
-		int ret = 1;	
-		pthread_exit(&ret);
-	}
-
-	return 0;
-}
 
 char* removeSlashes(char* hostname) {
 
@@ -214,14 +204,19 @@ void parseRequest(int sockfd, char* message) {
 	// trim off the leading http://. 
 	char* hostname = remove3WandHTTP(requestKiCopy);
 
-	//printf("hostname ----------------- %s\n", hostname);
+	char* cache_file = (char*)malloc(strlen(hostname)+1);
 
-	if(returnFromCache(sockfd, requestUrl, messagekicopy) == 0)
+	cache_file = removeSlashes(hostname);
+	//printf("hostname ----------------- %s\n", hostname);
+	printf("Cache file name should be----%s\n", cache_file);
+	if(returnFromCache(sockfd, cache_file, messagekicopy) == 0)
 		httpRequest(sockfd, requestUrl, messagekicopy);
 	
 	else {
 		cout << "Woah.. cache hit......" << endl;
 	}
-
+	//free(cache_file);
+	//free(hostname);
+	//free(requestKiCopy);
 	return;
 }
