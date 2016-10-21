@@ -134,6 +134,7 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	line;
 
 	int total_size = 0;
+	int count = 0, cacheable = 0;
 	
 	while(1) {
 		n = recv(reqsock, responseFromProxy, 10000, 0);
@@ -149,15 +150,30 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 			break;
 		}
 		else {
+			printf("%s\n", responseFromProxy);
+			if(count == 0) {
+				if((strstr(responseFromProxy, "HTTP/1.1 200 OK") != NULL) && (strstr(responseFromProxy, "no-cache") == NULL) && (strstr(responseFromProxy, "private") == NULL)) {
+					cacheable = 1;
+				}
+				else {
+					fp = NULL;
+				}
+			}
 			respondBackToClient(sockfd, responseFromProxy);
-			fprintf(fp,"%s\n",responseFromProxy);
-			fflush(fp);
+			if(cacheable == 1) {
+				fprintf(fp,"%s\n",responseFromProxy);
+				fflush(fp);
+			}
 			total_size += n;
 		}
 		memset(responseFromProxy, 0, 10000);
+		count++;
 	}
-	fflush(fp);
-	fclose(fp);
+	
+	if(cacheable == 1) {
+		fflush(fp);
+		fclose(fp);
+	}
 	
 
 	//cout << "I am done now...." << endl;

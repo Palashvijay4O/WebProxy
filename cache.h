@@ -27,7 +27,7 @@ char* tryCache(int sockfd, char* requestUrl, char* message) {
 			printf("Error reading cache file...\n");
 			return NULL;
 		}
-		cout << "caching working but fucking upp" << endl;
+		
 		char responseFromCache[10001];
 		responseFromCache[10000] = '\0';
 		memset(responseFromCache, 0, 10000);
