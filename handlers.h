@@ -1,5 +1,5 @@
 #include "includes.h"
-
+#include "cache.h"
 using namespace std;
 
 std::map<std::string, std::string> cache_map;
@@ -83,7 +83,7 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	char* newhostname = (char*)malloc(strlen(hostname)+1);
 	newhostname = removeSlashes(hostname);
 	sprintf(filename, "tmp/%s.txt", newhostname);
-	printf("cache filed name---%s\n", filename);
+	//printf("cache filed name---%s\n", filename);
 	fp = fopen(filename, "w");
 
 	if(!fp) {
@@ -223,7 +223,21 @@ void parseRequest(int sockfd, char* message) {
 	printf("%s\n", requestUrl);
 	line;
 
-	httpRequest(sockfd, requestUrl, messagekicopy);
+	char* requestKiCopy = (char*)malloc(strlen(requestUrl) + 1);
+	strcpy(requestKiCopy, requestUrl);
+
+
+	// trim off the leading http://. 
+	char* hostname = remove3WandHTTP(requestKiCopy);
+
+	printf("hostname ----------------- %s\n", hostname);
+
+	if(returnFromCache(sockfd, requestUrl, messagekicopy) == 0)
+		httpRequest(sockfd, requestUrl, messagekicopy);
+	
+	else {
+		cout << "Woah.. cache hit......" << endl;
+	}
 
 	return;
 }
