@@ -78,18 +78,17 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 	char *filename = (char *)malloc(strlen(hostname)+9);
 
-	//printf("The hostname which i am getting is------------------------%s\n", hostname);
+	printf("The hostname which i am getting is------------------------%s\n", hostname);
 	char* newhostname = (char*)malloc(strlen(hostname)+1);
 	newhostname = removeSlashes(hostname);
 	sprintf(filename, "tmp/%s.txt", newhostname);
+	printf("cache filed name---%s\n", filename);
 	fp = fopen(filename, "w");
 
 	if(!fp) {
 		cout << "lag gayi" << endl;
 	}
 
-
-	
 	//printf("Hostname : %s\n", hostname);
 	char* temphostname = (char*)malloc(strlen(hostname)+1);
 	strcpy(temphostname, hostname);
@@ -131,9 +130,9 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	}
 
 	
-	
+	printf("temphostname---------%s",temphostname);
 	char* fullrequest = (char*)malloc(strlen(temphostname)+30);
-	sprintf(fullrequest, "GET http://%s HTTP/1.1\r\n", temphostname);
+	sprintf(fullrequest, "GET http://%s\n HTTP/1.1", temphostname);
 
 
 	int writer;
