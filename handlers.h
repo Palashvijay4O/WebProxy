@@ -52,6 +52,10 @@ char* remove3WandHTTP(char* request) {
 void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 	printf("Message ye aaya hai client se -->\n %s\n", ClientSeAayaMsg);
+	bool browser = false;
+	if(strstr(ClientSeAayaMsg, "Host:") != NULL) {
+		browser = true;
+	}
 	int reqsock = socket(AF_INET, SOCK_STREAM, 0);
 	int ret = 1;
 
@@ -72,11 +76,9 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 	FILE* fp;
 
-	// TODO hostname ko sahi karna hai.. problem with slashes
-	// will have to replace / with _
 	char *filename = (char *)malloc(strlen(hostname)+9);
 
-	printf("The hostname which i am getting is------------------------%s\n", hostname);
+	//printf("The hostname which i am getting is------------------------%s\n", hostname);
 	char* newhostname = (char*)malloc(strlen(hostname)+1);
 	newhostname = removeSlashes(hostname);
 	sprintf(filename, "tmp/%s.txt", newhostname);
@@ -86,11 +88,15 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 		cout << "lag gayi" << endl;
 	}
 
-	printf("Hostname : %s\n", hostname);
+
+	
+	//printf("Hostname : %s\n", hostname);
+	char* temphostname = (char*)malloc(strlen(hostname)+1);
+	strcpy(temphostname, hostname);
 	char* tokens = strtok(hostname, "/");
 
 
-	printf("Hostname after tokenization------------ : %s\n", hostname);
+	//printf("Hostname after tokenization------------ : %s\n", hostname);
 	//string str(tokens);
 
 	cout << "Connecting to domain\n"; line;
@@ -99,8 +105,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 
 
 	// Unused
-	char* fullrequest = (char*)malloc(strlen(tokens)+23);
-	sprintf(fullrequest, "GET %s HTTP/1.1",tokens);
+	
 
 	// used to represent an entry in the hosts database
 	struct hostent *fetchHost, *proxyHost;
@@ -121,18 +126,27 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	int connectionfd  = connect(reqsock , (struct sockaddr *)&req_adr, sizeof(req_adr));
 	
 	if (connectionfd < 0) {
-		cout << "Couldn't connect to server.." << endl;
+		cout << "Couldn't connect to server.. Try again later.." << endl;
 		pthread_exit(&ret);
 	}
-	
-	//cout << connectionfd << endl;
-	//FILE* fp;
-	//fp = fopen("temp.txt", "w");
-	printf("request bhej raha hu ye ->\n %s\n", ClientSeAayaMsg);
-	//fclose(fp);
-	int writer = write(reqsock, ClientSeAayaMsg, strlen(ClientSeAayaMsg));
 
-	//trace1(writer);
+	
+	
+	char* fullrequest = (char*)malloc(strlen(temphostname)+30);
+	sprintf(fullrequest, "GET http://%s HTTP/1.1\r\n", temphostname);
+
+
+	int writer;
+	if(browser == false) {
+		printf("request bhej raha hu ye ->\n%s\n", fullrequest);
+		writer = write(reqsock, fullrequest, strlen(fullrequest));
+	}
+	else {
+		printf("request bhej raha hu ye ->\n %s\n", ClientSeAayaMsg);
+		writer = write(reqsock, ClientSeAayaMsg, strlen(ClientSeAayaMsg));
+	}
+
+	trace1(writer);
 
 	char responseFromProxy[10001];
 	responseFromProxy[10000] = '\0';
@@ -150,7 +164,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	//serverResponse[500000] = '\0';
 	while(1) {
 		n = recv(reqsock, responseFromProxy, 10000, 0);
-		
+
 		trace1(n);
 		if(n < 0) {
 			cout << "Not able to fetch from host.. quiting" << endl;
@@ -162,12 +176,9 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 			break;
 		}
 		else {
-			
-			//strcat(serverResponse, responseFromProxy);
 			respondBackToClient(sockfd, responseFromProxy);
 			fprintf(fp,"%s\n",responseFromProxy);
 			fflush(fp);
-			//trace1(n);
 			total_size += n;
 		}
 		memset(responseFromProxy, 0, 10000);
@@ -176,7 +187,7 @@ void httpRequest(int sockfd, char* request, char* ClientSeAayaMsg) {
 	fclose(fp);
 	
 
-	cout << "I am out now...." << endl;
+	//cout << "I am out now...." << endl;
 	
 	line;
 

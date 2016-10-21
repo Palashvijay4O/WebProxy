@@ -106,7 +106,7 @@ class Proxy {
 
 			// int and long on different platforms.
 			pthread_t thread;
-			int ret = 1;
+			//int ret = 1;
 			//pthread_mutex_init(&lock, NULL);
 			//pthread_mutex_lock(&lock);
 			if(pthread_create(&thread, NULL, &Proxy::beginExecution, (void*)(intptr_t)newsockfd) < 0) {
