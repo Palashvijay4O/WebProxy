@@ -32,9 +32,11 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 
 	//printf("Message ye aaya hai client se -->\n %s\n", ClientSeAayaMsg);
 	bool browser = false;
+	
 	if(strstr(ClientSeAayaMsg, "Host:") != NULL) {
 		browser = true;
 	}
+
 	int reqsock = socket(AF_INET, SOCK_STREAM, 0);
 	int ret = 1;
 
@@ -57,7 +59,7 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 
 	char *filename = (char *)malloc(strlen(hostname)+9);
 
-	printf("The hostname which i am getting is------------------------%s\n", hostname);
+	//printf("The hostname which i am getting is------------------------%s\n", hostname);
 	char* newhostname = (char*)malloc(strlen(hostname)+1);
 	newhostname = removeSlashes(hostname);
 	sprintf(filename, "tmp/%s.txt", newhostname);
@@ -68,23 +70,13 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	strcpy(temphostname, hostname);
 	char* tokens = strtok(hostname, "/");
 
-
-	//printf("Hostname after tokenization------------ : %s\n", hostname);
-	//string str(tokens);
-
 	cout << "Connecting to domain\n"; line;
-	printf("Tokens----------------------------%s\n",tokens);
-	line;
-
-
-	// Unused
-	
 
 	// used to represent an entry in the hosts database
-	struct hostent *fetchHost, *proxyHost;
+	struct hostent *proxyHost;
 
 
-	//fetchHost = gethostbyname(tokens);
+	
 	proxyHost = gethostbyname(PROXY_SERVER);
 
 	if(proxyHost == NULL) {
@@ -110,10 +102,12 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 
 
 	int writer;
+	// checking if my client is browser.
 	if(browser == false) {
 		printf("request bhej raha hu ye ->\n%s\n", fullrequest);
 		writer = write(reqsock, fullrequest, strlen(fullrequest));
 	}
+	// else it will be telnet client.
 	else {
 		printf("request bhej raha hu ye ->\n %s\n", ClientSeAayaMsg);
 		writer = write(reqsock, ClientSeAayaMsg, strlen(ClientSeAayaMsg));
@@ -124,19 +118,16 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 	responseFromProxy[10000] = '\0';
 	memset(responseFromProxy, 0, 10000);
 
-	int n;
-	cout << "Response From Proxy" << endl;
+	cout << "======Response From Proxy======" << endl;
 	line;
 
-	int total_size = 0;
-	int count = 0, cacheable = 0;
+	int total_size = 0, n, count = 0, cacheable = 0;
 	
-	//n = recv(reqsock, responseFromProxy, 10000, 0);
 
 	while(1) {
 		n = recv(reqsock, responseFromProxy, 10000, 0);
 
-		trace1(n);
+		//trace1(n);
 		if(n < 0) {
 			cout << "Not able to fetch from host.. quiting" << endl;
 			close(reqsock);
@@ -147,7 +138,8 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 			break;
 		}
 		else {
-			printf("%s\n", responseFromProxy);
+			printf("%s", responseFromProxy);
+			fflush(stdout);
 			if(count == 0) {
 				if((strstr(responseFromProxy, "HTTP/1.1 200 OK") != NULL) && (strstr(responseFromProxy, "no-cache") == NULL) && (strstr(responseFromProxy, "private") == NULL)) {
 					fp = fopen(filename, "w");
@@ -174,25 +166,19 @@ void httpRequest(int sockfd, char* requestUrl, char* ClientSeAayaMsg) {
 		fflush(fp);
 		fclose(fp);
 	}
-	
 
-	//cout << "I am done now...." << endl;
-	// SINGLE CLIENT CACHE SYSTEM
-	/*string key = hostname;
-	string value = filename;
-	cache_map[hostname] = filename;
-
-	cout << cache_map.size() << endl;*/
+	line;
+	cout << "All data sent successfully.. closing connection!!" << endl;
 	line;
 
 	close(reqsock);
 	pthread_exit(&ret);
+
 }
 
 
 void parseRequest(int sockfd, char* message) {
 
-	//printf("Message -------- %s\n",message);
 	char* messagekicopy = (char*)malloc(strlen(message) + 1);
 	strcpy(messagekicopy, message);
 	char *tokens = strtok(message, " ");
@@ -224,15 +210,13 @@ void parseRequest(int sockfd, char* message) {
 
 	cache_file = removeSlashes(hostname);
 	//printf("hostname ----------------- %s\n", hostname);
-	printf("Cache file name should be----%s\n", cache_file);
+	//printf("Cache file name should be----%s\n", cache_file);
 	if(returnFromCache(sockfd, cache_file, messagekicopy) == 0)
 		httpRequest(sockfd, requestUrl, messagekicopy);
 	
 	else {
-		cout << "Woah.. cache hit......" << endl;
+		cout << "You just saved your time....It's a cache hit!!" << endl;
 	}
-	//free(cache_file);
-	//free(hostname);
-	//free(requestKiCopy);
+	
 	return;
 }

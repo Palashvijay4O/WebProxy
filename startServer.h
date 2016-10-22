@@ -10,10 +10,11 @@ class Proxy {
 	int portNumber;	
 
 	public:
+		// constructor
 		Proxy(int portNumber) {
 			this->portNumber = portNumber;
 		}
-
+		// destructor
 		~Proxy() {
 
 		}
@@ -91,13 +92,10 @@ class Proxy {
 		// only applicable to sockets created using SOCK_STREAM ie
 		// for connection-based sockets types.
 		int l = listen(sockfd, 5);
-		//std::cout << l << std::endl;
-
-		int newsockfd;
-
-		int count = 0;
+		
+		int newsockfd, count = 0;
 		while(1) {
-			//std::cout << "calling while again" << endl;
+			
 			socklen_t clilen = sizeof client_adr;
 			newsockfd = accept(sockfd, (struct sockaddr*)& client_adr, &clilen);
 			if(newsockfd < 0) {
@@ -106,22 +104,15 @@ class Proxy {
 
 			// int and long on different platforms.
 			pthread_t thread;
-			//int ret = 1;
-			//pthread_mutex_init(&lock, NULL);
-			//pthread_mutex_lock(&lock);
+
 			if(pthread_create(&thread, NULL, &Proxy::beginExecution, (void*)(intptr_t)newsockfd) < 0) {
 				cout << "Error creating thread.. exiting" << endl;
 				DIE
 			}
 			count++;
 			
-			//pthread_join(thread, NULL);
-			//cout << count << endl;
 			pthread_detach(thread);
 			thread = NULL;
-			//pthread_exit(&ret);
-			//Proxy::beginExecution((void*)(intptr_t)newsockfd);
-			//pthread_mutex_unlock(&lock);
 		}
 	}
 };
